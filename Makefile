@@ -1,5 +1,7 @@
 REPO							?= gianlu33/reactive-event-manager
-TAG								?= fosdem
+TAG								?= latest
+
+BACKUP						?= registry.rosetta.ericssondevops.com/gftl-er-5g-hosts/authentic-execution/fosdem-21-images/reactive-event-manager:latest
 
 LOG								?= info
 THREADS						?= 16
@@ -16,6 +18,10 @@ build:
 
 push: login
 	docker push $(REPO):$(TAG)
+
+push_backup:
+		docker tag $(REPO):$(TAG) $(BACKUP)
+		docker push $(BACKUP)
 
 pull:
 	docker pull $(REPO):$(TAG)
