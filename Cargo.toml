@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-reactive_net = { git = "https://github.com/gianlu33/rust-sgx-libs.git", tag="fosdem-21" }
+reactive_net = { git = "https://github.com/gianlu33/rust-sgx-libs.git", rev="d6a028a642dbbd757f6eba8e47f329745cf018eb" }
 lazy_static = "1.4.0"
 log = "0.4.8"
 simple_logger = "1.5.0"
