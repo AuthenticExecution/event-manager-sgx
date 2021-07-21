@@ -24,15 +24,16 @@ pub fn handle_add_connection(stream : &mut TcpStream) -> Option<ResultMessage> {
         }
     };
 
-    if payload.len() != 10 {
+    if payload.len() != 11 {
         error!("Payload length is not correct: {}", payload.len());
         return Some(ResultMessage::new(ResultCode::IllegalPayload, None));
     }
 
     let conn_id = bytes_to_u16(&payload[..2]);
     let to_sm = bytes_to_u16(&payload[2..4]);
-    let em_port = bytes_to_u16(&payload[4..6]);
-    let addr = match data_to_ipv4(&payload[6..10]) {
+    let local = payload[4] != 0;
+    let em_port = bytes_to_u16(&payload[5..7]);
+    let addr = match data_to_ipv4(&payload[7..11]) {
         Ok(a) => a,
         Err(e) => {
             error!("{}", e);
@@ -40,11 +41,11 @@ pub fn handle_add_connection(stream : &mut TcpStream) -> Option<ResultMessage> {
         }
     };
 
-    debug!("Connection id {} to {}:{} module {}", conn_id, addr, em_port, to_sm);
+    debug!("Connection id {} to {}:{} (local: {}) module {}", conn_id, addr, em_port, local, to_sm);
 
     let mut connections = CONNECTIONS.lock().unwrap();
 
-    connections.insert(conn_id, Connection::new(to_sm, addr, em_port));
+    connections.insert(conn_id, Connection::new(to_sm, addr, em_port, local));
 
     Some(ResultMessage::new(ResultCode::Ok, None))
 }
