@@ -7,6 +7,7 @@ use crate::periodic::PeriodicTask;
 use crate::helpers::*;
 use crate::output::*;
 use crate::sm_loaders::*;
+use crate::time::*;
 
 use crate::{CONNECTIONS, PERIODIC_TASKS};
 use log::{debug, error};
@@ -82,6 +83,8 @@ pub fn handle_call_entrypoint(stream : &mut TcpStream) -> Option<ResultMessage> 
 
 pub fn handle_module_output(stream : &mut TcpStream) -> Option<ResultMessage> {
     debug!("handle_module_output payload received");
+
+    measure_time("module_output");
 
     // read packet
     let payload = match reactive_net::read_message(stream) {
@@ -174,6 +177,8 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
     // received from another SM
     debug!("handle_remote_output received");
 
+    measure_time("remote_output");
+
     // read packet
     let mut payload = match reactive_net::read_message(stream) {
         Ok(p) => p,
@@ -206,6 +211,8 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
 pub fn handle_remote_request(stream : &mut TcpStream) -> Option<ResultMessage> {
     // received from another SM
     debug!("handle_remote_request received");
+
+    measure_time("remote_request");
 
     // read packet
     let mut payload = match reactive_net::read_message(stream) {

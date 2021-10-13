@@ -21,6 +21,7 @@ mod output;
 mod connection;
 mod sm_loaders;
 mod periodic;
+mod time;
 use connection::Connection;
 use periodic::PeriodicTask;
 
@@ -31,6 +32,11 @@ lazy_static! {
     static ref PORT : u16 = {
         let port = env::var("EM_PORT");
         port.expect("Missing EM_PORT environment variable").parse::<u16>().expect("Port must be an u16!")
+    };
+
+    static ref MEASURE_TIME : bool = {
+        env::var("EM_MEASURE_TIME").unwrap_or("false".to_string()).parse::<bool>()
+            .expect("EM_MEASURE_TIME must be a bool")
     };
 
     static ref SM_INDEX : Mutex<u16> = {
@@ -125,6 +131,7 @@ fn main()  -> std::io::Result<()> {
     let host = format!("0.0.0.0:{}", *PORT);
     init_loglevel();
     info!("EM_SGX: {}", *USE_SGX_LOADER);
+    info!("EM_MEASURE_TIME: {}", *MEASURE_TIME);
 
     // set handler for SIGTERM signal, to delete temp directory
     ctrlc::set_handler(|| {

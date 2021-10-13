@@ -6,6 +6,7 @@ BACKUP						?= registry.rosetta.ericssondevops.com/gftl-er-5g-hosts/authentic-ex
 LOG								?= info
 THREADS						?= 16
 PERIODIC_TASKS		?= false
+MEASURE_TIME			?= false
 
 install:
 	cargo install --debug --path .
@@ -27,10 +28,10 @@ pull:
 	docker pull $(REPO):$(TAG)
 
 run_sgx: check_port
-	docker run --rm -v /var/run/aesmd/:/var/run/aesmd/ --network=host --device=/dev/isgx -e EM_PORT=$(PORT) -e EM_LOG=$(LOG) -e EM_THREADS=$(THREADS) -e EM_PERIODIC_TASKS=$(PERIODIC_TASKS) $(REPO):$(TAG)
+	docker run --rm -v /var/run/aesmd/:/var/run/aesmd/ --network=host --device=/dev/isgx -e EM_PORT=$(PORT) -e EM_LOG=$(LOG) -e EM_THREADS=$(THREADS) -e EM_PERIODIC_TASKS=$(PERIODIC_TASKS) -e EM_MEASURE_TIME=$(MEASURE_TIME) $(REPO):$(TAG)
 
 run_native: check_port
-	docker run --rm --network=host -e EM_PORT=$(PORT) -e EM_LOG=$(LOG) -e EM_THREADS=$(THREADS) -e EM_PERIODIC_TASKS=$(PERIODIC_TASKS) -e EM_SGX=false $(REPO):$(TAG)
+	docker run --rm --network=host -e EM_PORT=$(PORT) -e EM_LOG=$(LOG) -e EM_THREADS=$(THREADS) -e EM_PERIODIC_TASKS=$(PERIODIC_TASKS) -e EM_SGX=false -e EM_MEASURE_TIME=$(MEASURE_TIME) $(REPO):$(TAG)
 
 login:
 	docker login
