@@ -84,8 +84,6 @@ pub fn handle_call_entrypoint(stream : &mut TcpStream) -> Option<ResultMessage> 
 pub fn handle_module_output(stream : &mut TcpStream) -> Option<ResultMessage> {
     debug!("handle_module_output payload received");
 
-    measure_time("module_output");
-
     // read packet
     let payload = match reactive_net::read_message(stream) {
         Ok(p) => p,
@@ -94,6 +92,8 @@ pub fn handle_module_output(stream : &mut TcpStream) -> Option<ResultMessage> {
             return None;
         }
     };
+
+    measure_time("module_output");
 
     if payload.len() <= 4 {
         error!("Payload length is not correct");
@@ -177,8 +177,6 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
     // received from another SM
     debug!("handle_remote_output received");
 
-    measure_time("remote_output");
-
     // read packet
     let mut payload = match reactive_net::read_message(stream) {
         Ok(p) => p,
@@ -187,6 +185,8 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
             return None;
         }
     };
+
+    measure_time("remote_output");
 
     if payload.len() <= 6 {
         error!("Payload length is not correct");
@@ -212,8 +212,6 @@ pub fn handle_remote_request(stream : &mut TcpStream) -> Option<ResultMessage> {
     // received from another SM
     debug!("handle_remote_request received");
 
-    measure_time("remote_request");
-
     // read packet
     let mut payload = match reactive_net::read_message(stream) {
         Ok(p) => p,
@@ -222,6 +220,8 @@ pub fn handle_remote_request(stream : &mut TcpStream) -> Option<ResultMessage> {
             return None;
         }
     };
+
+    measure_time("remote_request");
 
     if payload.len() <= 6 {
         error!("Payload length is not correct");
