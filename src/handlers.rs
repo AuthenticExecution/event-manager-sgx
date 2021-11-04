@@ -93,7 +93,7 @@ pub fn handle_module_output(stream : &mut TcpStream) -> Option<ResultMessage> {
         }
     };
 
-    measure_time("module_output");
+    measure_time("module_output_before_dispatch");
 
     if payload.len() <= 4 {
         error!("Payload length is not correct");
@@ -118,7 +118,10 @@ pub fn handle_module_output(stream : &mut TcpStream) -> Option<ResultMessage> {
     };
 
     match res {
-        Ok(res) => res,
+        Ok(res) => {
+            measure_time("module_output_after_dispatch");
+            res
+        },
         Err(e)  => {
             error!("handle_module_output: {}", e);
             Some(ResultMessage::new(ResultCode::GenericError, None))
@@ -186,7 +189,7 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
         }
     };
 
-    measure_time("remote_output");
+    measure_time("remote_output_before_dispatch");
 
     if payload.len() <= 6 {
         error!("Payload length is not correct");
@@ -205,6 +208,8 @@ pub fn handle_remote_output(stream : &mut TcpStream) -> Option<ResultMessage> {
         debug!("{}", e);
     }
 
+    measure_time("remote_output_after_dispatch");
+
     None
 }
 
@@ -221,7 +226,7 @@ pub fn handle_remote_request(stream : &mut TcpStream) -> Option<ResultMessage> {
         }
     };
 
-    measure_time("remote_request");
+    measure_time("remote_request_before_dispatch");
 
     if payload.len() <= 6 {
         error!("Payload length is not correct");
@@ -237,7 +242,10 @@ pub fn handle_remote_request(stream : &mut TcpStream) -> Option<ResultMessage> {
     payload[1] = entry_id[1];
 
     match connect_to_sm(sm_id, &payload) {
-        Ok(res)     => Some(res),
+        Ok(res)     => {
+            measure_time("remote_request_after_dispatch");
+            Some(res)
+        },
         Err(e)      => {
             error!("{}", e);
             Some(ResultMessage::new(ResultCode::InternalError, None))
