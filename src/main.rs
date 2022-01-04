@@ -101,6 +101,7 @@ fn init_loglevel() {
 
     SimpleLogger::new()
         .with_level(level)
+        .with_utc_timestamps()
         .init()
         .unwrap();
 

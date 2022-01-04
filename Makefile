@@ -1,4 +1,5 @@
 REPO           ?= authexec/event-manager-sgx
+TAG            ?= latest
 
 LOG            ?= info
 THREADS         = 16
