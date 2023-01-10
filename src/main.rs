@@ -24,6 +24,7 @@ mod periodic;
 mod time;
 use connection::Connection;
 use periodic::PeriodicTask;
+use std::process::Child;
 
 use reactive_net::{ResultCode, CommandCode, ResultMessage};
 
@@ -56,6 +57,10 @@ lazy_static! {
     static ref PERIODIC_TASKS: Mutex<Vec<PeriodicTask>> = {
         Mutex::new(Vec::new())
     };
+
+    static ref MODULES: Mutex<Vec<Child>> = {
+        Mutex::new(Vec::new())
+    };
 }
 
 
@@ -75,7 +80,7 @@ fn handle_client(mut stream: TcpStream) {
             CommandCode::CallEntrypoint     => handlers::handle_call_entrypoint(&mut stream),
             CommandCode::RemoteOutput       => handlers::handle_remote_output(&mut stream),
             CommandCode::LoadSM             => handlers::handle_load_sm(&mut stream),
-            CommandCode::Ping               => handlers::handle_ping(&mut stream),
+            CommandCode::Reset              => handlers::handle_reset(&mut stream),
             CommandCode::RegisterEntrypoint => handlers::handle_register_entrypoint(&mut stream),
             CommandCode::ModuleOutput       => handlers::handle_module_output(&mut stream),
             CommandCode::RemoteRequest      => handlers::handle_remote_request(&mut stream)

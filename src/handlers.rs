@@ -9,8 +9,8 @@ use crate::output::*;
 use crate::sm_loaders::*;
 use crate::time::*;
 
-use crate::{CONNECTIONS, PERIODIC_TASKS};
-use log::{debug, error};
+use crate::{CONNECTIONS, PERIODIC_TASKS, MODULES};
+use log::{debug, warn, error};
 
 
 pub fn handle_add_connection(stream : &mut TcpStream) -> Option<ResultMessage> {
@@ -140,8 +140,21 @@ pub fn handle_load_sm(stream: &mut TcpStream) -> Option<ResultMessage> {
 }
 
 
-pub fn handle_ping(_stream : &mut TcpStream) -> Option<ResultMessage> {
-    debug!("handle_ping received");
+pub fn handle_reset(_stream : &mut TcpStream) -> Option<ResultMessage> {
+    debug!("handle_reset received");
+    let mut connections = CONNECTIONS.lock().unwrap();
+    let mut tasks = PERIODIC_TASKS.lock().unwrap();
+    let mut modules = MODULES.lock().unwrap();
+
+    connections.clear();
+    tasks.clear();
+
+    for module in &mut *modules {
+        if let Err(_) = module.kill() {
+            warn!("Failed to kill module with PID {}", module.id());
+        }
+    }
+    modules.clear();
 
     Some(ResultMessage::new(ResultCode::Ok, None))
 }

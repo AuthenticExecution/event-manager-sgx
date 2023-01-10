@@ -3,6 +3,7 @@ use std::io::prelude::*;
 use std::process::Command;
 
 use crate::helpers::*;
+use crate::MODULES;
 use reactive_net::{ResultCode, ResultMessage};
 
 use log::{debug, error};
@@ -45,16 +46,19 @@ pub fn load_sm_sgx(stream: &mut TcpStream) -> Option<ResultMessage> {
         return Some(ResultMessage::new(ResultCode::InternalError, None));
     }
 
+
     // run enclave
-    if let Err(_) = Command::new("ftxsgx-runner")
-    .args(&["-s", "coresident", &sgxs])
-    .spawn() {
-        error!("program failed to start");
-        Some(ResultMessage::new(ResultCode::InternalError, None))
-    }
-    else {
-        debug!("Module started successfully");
-        Some(ResultMessage::new(ResultCode::Ok, None))
+    match Command::new("ftxsgx-runner").args(&["-s", "coresident", &sgxs]).spawn() {
+        Ok(module)  => {
+            let mut modules = MODULES.lock().unwrap();
+            modules.push(module);
+            debug!("Module started successfully");
+            Some(ResultMessage::new(ResultCode::Ok, None))
+        }
+        Err(_)      => {
+            error!("program failed to start");
+            Some(ResultMessage::new(ResultCode::InternalError, None))
+        }
     }
 }
 
@@ -98,12 +102,16 @@ pub fn load_sm_native(stream: &mut TcpStream) -> Option<ResultMessage> {
             }
     };
 
-    if let Err(_) = Command::new(filename).spawn() {
-        error!("program failed to start");
-        Some(ResultMessage::new(ResultCode::InternalError, None))
-    }
-    else {
-        debug!("Module started successfully");
-        Some(ResultMessage::new(ResultCode::Ok, None))
+    match Command::new(filename).spawn() {
+        Ok(module)  => {
+            let mut modules = MODULES.lock().unwrap();
+            modules.push(module);
+            debug!("Module started successfully");
+            Some(ResultMessage::new(ResultCode::Ok, None))
+        }
+        Err(_)      => {
+            error!("program failed to start");
+            Some(ResultMessage::new(ResultCode::InternalError, None))
+        }
     }
 }
